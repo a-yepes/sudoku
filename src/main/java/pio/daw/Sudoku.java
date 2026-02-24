@@ -5,17 +5,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import pio.daw.Playable.InvalidMovementException;
 import pio.daw.Playable.InvalidUserInputException;
 
 public class Sudoku implements Playable {
     private Integer[][] matrix; // Holds info about the number in the sudoku
-    private List<SudokuChange> changes; // Register every change
+    private List<SudokuChange> changes; // Register every change- guarda en formato B37 (filaB col3 numero7)
     private Boolean isFinish = false;
     private Boolean playerWin = false;
-
-    //del ejercicio anterior
     Byte[][] tablero; // tablero array de array Byte[columna][fila]
-    List<String> changes; //guarda en formato B37 (filaB col3 numero7)
+
+
      private final Map<Character,Integer> rowMap = Map.of( //para pasar la letra de la fila a int
         'A',0,
         'B',1,
@@ -59,14 +59,20 @@ public class Sudoku implements Playable {
             }
 
 
-            int row = ;
-            int col= Integer.parseInt(colValue);
-            int value= n;
+            int row = rowMap.get(rowValue);
+            int col = Character.getNumericValue(colValue) - 1;
+            int value = Character.getNumericValue(n);
 
            
           this(row, col, value);
+
           
+   
+
         }
+
+          
+    }
 
         @Override
         public final String toString() {
@@ -95,7 +101,7 @@ public class Sudoku implements Playable {
         */
 
     }
-    }
+    
 
     public Sudoku(String sudokuString){
         //TODO Create a sudoku from a string of len 9x9 where every 9 chars correspond to a row
@@ -164,3 +170,4 @@ public class Sudoku implements Playable {
     }
 
 }
+
