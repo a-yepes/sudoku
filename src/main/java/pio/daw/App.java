@@ -37,5 +37,6 @@ public class App {
         else{
             System.out.println("YOU LOSE");
         }
+        sc.close();
     }
 }
