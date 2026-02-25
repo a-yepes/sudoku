@@ -16,7 +16,7 @@ public class Sudoku implements Playable {
     Byte[][] tablero; // tablero array de array Byte[columna][fila]
 
 
-     private final Map<Character,Integer> rowMap = Map.of( //para pasar la letra de la fila a int
+     private final static Map<Character,Integer> rowMap = Map.of( //para pasar la letra de la fila a un indice 0-8. NO CONVIERTE LETRAS EN NUMEROS
         'A',0,
         'B',1,
         'C',2,
@@ -35,9 +35,9 @@ public class Sudoku implements Playable {
      */
     private record SudokuInput(Integer row, Integer col, Integer value) { 
 
-        public SudokuInput(String input) throws Playable.InvalidUserInputException {//divido string en 3: compruebo que el primero es letra y los otros dos numeros
-            // TODO Take an input of the form "B37" and store row = 1, col = 2, value = 7
-
+        public SudokuInput(String input) throws Playable.InvalidUserInputException { // TODO Take an input of the form "B37" and store row = 1, col = 2, value = 7
+                //divido string en 3: compruebo que el primero es letra y los otros dos numeros
+           
             //asigno un indice a cada parte
             char rowValue = Character.toUpperCase(input.charAt(0));//por si lo pone en minusculas que no de problema
             char colValue = input.charAt(1);
@@ -59,7 +59,7 @@ public class Sudoku implements Playable {
             }
 
 
-            int row = rowMap.get(rowValue);
+            int row = rowMap.get(rowValue); //coge la letra y lo convierte en el indice que le hemos puesto en el rowmap
             int col = Character.getNumericValue(colValue) - 1;
             int value = Character.getNumericValue(n);
 
@@ -85,7 +85,8 @@ public class Sudoku implements Playable {
     private record SudokuChange(SudokuInput before, SudokuInput after) {
     }
 
-    public Sudoku(){ //TODO Create a Sudoku with the matrix fill with 0 and an empty list of changes;
+    //constuctor 1 vacio
+     Sudoku(){ //TODO Create a Sudoku with the matrix fill with 0 and an empty list of changes;
         
        this.tablero = new Byte[9][9]; //inicializacion
        this.changes = new ArrayList<>();
@@ -103,8 +104,22 @@ public class Sudoku implements Playable {
     }
     
 
-    public Sudoku(String sudokuString){
-        //TODO Create a sudoku from a string of len 9x9 where every 9 chars correspond to a row
+    //constructor 2 con valor
+    public Sudoku(String sudokuString){ //TODO Create a sudoku from a string of len 9x9 where every 9 chars correspond to a row
+       
+        this.tablero = new Byte[9][9]; //inicializacion tablero
+        this.changes = new ArrayList<>();// inicializacion historial
+
+        for(int i = 0;i<sudokuString.length();i++){
+            //cad 9 char es una fila. Miro cuantos grupos de 9 caben completos en la fila y el resto es la columna
+            int row= i/9;
+            int col=i%9;
+
+            char c = sudokuString.charAt(i);//para leer la posicion de cada caracter
+            int value = Character.getNumericValue(c);//convierto las letras del archivo en numeros
+            this.tablero[row][col]= Byte.parseByte(String.valueOf(c)); //convierto en Byte para poder guardarlo
+
+        }
     }
 
     @Override
@@ -126,8 +141,30 @@ public class Sudoku implements Playable {
     }
 
     @Override
-    public void renderToConsole() {
-        // TODO Auto-generated method stub
+    public void renderToConsole() {  // TODO Auto-generated method stub: Print to console the game updated since last input
+
+        String[] filas = {"A","B","C","D","E","F","G","H","I"}; //para poner la letra de cada fila al lado de cada una
+
+        //filas: poner la letra de cada fila para que el usuario sepa cual es
+         for (int row=0;row <9; row++){
+            System.out.println(filas[row]+ " ");
+         
+        }
+        //columnas: si vale 0 pongo un . para indicar hueco
+         for (int col =0; col<9;col++){
+            if(tablero[row][col]==0){
+                System.out.println(". ");
+            }
+            else{
+                System.out.println(tablero[row][col + " "]);
+            }
+        
+        //separar visualmente los 3x3 con --- |?
+
+            }
+        
+        
+
         
     }
 
