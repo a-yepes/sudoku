@@ -15,7 +15,7 @@ public class Sudoku implements Playable {
     private List<SudokuChange> changes; // Register every change- guarda en formato B37 (filaB col3 numero7)
     private Boolean isFinish = false;
     private Boolean surrendered = false;
-    Byte[][] tablero; // tablero array de array Byte[columna][fila]
+   
 
     private static SudokuInput inputFromString(String input) throws Playable.InvalidUserInputException {
         //divido string en 3: compruebo que el primero es letra y los otros dos numeros
@@ -46,7 +46,7 @@ public class Sudoku implements Playable {
             int value = Character.getNumericValue(n);
 
            
-          this(row, col, value);
+          this(row: null, col: null, value: null);
 
           return new SudokuInput(input);
    
@@ -76,10 +76,14 @@ public class Sudoku implements Playable {
      * Data structure to store information about changes accesible
      */
     private record SudokuInput(Integer row, Integer col, Integer value) { 
+        public SudokuInput(String input) throws Playable.InvalidUserInputException {
+        // TODO Take an input of the form "B37" and store row = 1, col = 2, value = 7
+        this(null, null, null);
+        }
 
-        //public SudokuInput(String input) throws Playable.InvalidUserInputException { // TODO Take an input of the form "B37" and store row = 1, col = 2, value = 7
+        
                 
-
+  
 
         @Override
         public final String toString() {
@@ -87,18 +91,17 @@ public class Sudoku implements Playable {
             return String.format("%c%d%d", rowChar, this.col + 1, this.value);
         }
     }
+      private record SudokuChange(SudokuInput before, SudokuInput after) {}
 
-
-    //private record SudokuChange(SudokuInput before, SudokuInput after) //
 
 
     //constuctor 1 vacio
      Sudoku(){ //TODO Create a Sudoku with the matrix fill with 0 and an empty list of changes;
         
-       this.tablero = new Byte[9][9]; //inicializacion
+       this.tablero = new Integer[9][9]; //inicializacion
        this.changes = new ArrayList<>();
 
-        for(Byte []row : this.tablero){//rellena el array de arrays con ceros
+        for(Integer []row : this.tablero){//rellena el array de arrays con ceros
             Arrays.fill(row,0);
        }
        /* otra opcion: for(int row=0; row<9;row++){
@@ -113,21 +116,17 @@ public class Sudoku implements Playable {
 
     //constructor 2 con valor
     public Sudoku(String sudokuString){ //TODO Create a sudoku from a string of len 9x9 where every 9 chars correspond to a row
-       
-        this.tablero = new Byte[9][9]; //inicializacion tablero
-        this.changes = new ArrayList<>();// inicializacion historial
-
-        for(int i = 0;i<sudokuString.length();i++){
-            //cada 9 char es una fila. Miro cuantos grupos de 9 caben completos en la fila y el resto es la columna
-            int row= i/9;
-            int col=i%9;
-
-            char c = sudokuString.charAt(i);//para leer la posicion de cada caracter
-            int value = Character.getNumericValue(c);//convierto las letras del archivo en numeros
-            this.tablero[row][col]= Byte.parseByte(String.valueOf(c)); //convierto en Byte para poder guardarlo
-
+        this();
+        for (Integer i = 0 <9; i++){
+            for(Integer j = 0; j<9; j++){
+                Integer strPos = i * 9 +j; //para coger la posicion del String
+                Integer val = Integer.parseInt(sudokuString.substring(strPos,strPos+1));//substring: desde x hasta y, sin incluir y
+                this.matrix [i][j]=val;
+            }
         }
-    }
+            
+        }
+    
 
     @Override
     public Boolean isFinished() {// TODO Auto-generated method stub
@@ -285,10 +284,21 @@ public class Sudoku implements Playable {
     }
 
     @Override
-    public String toString() {
-        // TODO Convert the sudoku matrix in a one line string of len 9x9;
-        return "";
-    }
-
+    public String toString() {// TODO Convert the sudoku matrix in a one line string of len 9x9;
+        this();
+        for (Integer i = 0 <9; i++){
+            for(Integer j = 0; j<9; j++){
+                Integer intPos = i * 9 +j; //para coger la posicion del String
+                String val = Integer.parseInt(sudokuString.substring(intPos,intPos+1));//substring: desde x hasta y, sin incluir y
+                this.matrix [i][j]=val;
+            }
+        }
+           return "";
+            
+        }
+        
+     
 }
+
+
 
