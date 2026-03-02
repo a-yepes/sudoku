@@ -8,35 +8,17 @@ import java.util.Map;
 import pio.daw.Playable.InvalidMovementException;
 import pio.daw.Playable.InvalidUserInputException;
 
+
+
 public class Sudoku implements Playable {
     private Integer[][] matrix; // Holds info about the number in the sudoku
     private List<SudokuChange> changes; // Register every change- guarda en formato B37 (filaB col3 numero7)
     private Boolean isFinish = false;
-    private Boolean playerWin = false;
+    private Boolean surrendered = false;
     Byte[][] tablero; // tablero array de array Byte[columna][fila]
 
-
-     private final static Map<Character,Integer> rowMap = Map.of( //para pasar la letra de la fila a un indice 0-8. NO CONVIERTE LETRAS EN NUMEROS
-        'A',0,
-        'B',1,
-        'C',2,
-        'D',3,
-        'E',4,
-        'F',5,
-        'G',6,
-        'H',7,
-        'I',8
-
-     );
-
-
-    /**
-     * Data structure to store information about changes accesible
-     */
-    private record SudokuInput(Integer row, Integer col, Integer value) { 
-
-        public SudokuInput(String input) throws Playable.InvalidUserInputException { // TODO Take an input of the form "B37" and store row = 1, col = 2, value = 7
-                //divido string en 3: compruebo que el primero es letra y los otros dos numeros
+    private static SudokuInput inputFromString(String input) throws Playable.InvalidUserInputException {
+        //divido string en 3: compruebo que el primero es letra y los otros dos numeros
            
             //asigno un indice a cada parte
             char rowValue = Character.toUpperCase(input.charAt(0));//por si lo pone en minusculas que no de problema
@@ -66,13 +48,38 @@ public class Sudoku implements Playable {
            
           this(row, col, value);
 
-          
+          return new SudokuInput(input);
    
 
         }
 
-          
-    }
+        
+        
+    
+
+
+     private final static Map<Character,Integer> rowMap = Map.of( //para pasar la letra de la fila a un indice 0-8. NO CONVIERTE LETRAS EN NUMEROS
+        'A',0,
+        'B',1,
+        'C',2,
+        'D',3,
+        'E',4,
+        'F',5,
+        'G',6,
+        'H',7,
+        'I',8
+
+     );
+
+
+    /**
+     * Data structure to store information about changes accesible
+     */
+    private record SudokuInput(Integer row, Integer col, Integer value) { 
+
+        //public SudokuInput(String input) throws Playable.InvalidUserInputException { // TODO Take an input of the form "B37" and store row = 1, col = 2, value = 7
+                
+
 
         @Override
         public final String toString() {
@@ -82,8 +89,8 @@ public class Sudoku implements Playable {
     }
 
 
-    private record SudokuChange(SudokuInput before, SudokuInput after) {
-    }
+    //private record SudokuChange(SudokuInput before, SudokuInput after) //
+
 
     //constuctor 1 vacio
      Sudoku(){ //TODO Create a Sudoku with the matrix fill with 0 and an empty list of changes;
@@ -111,7 +118,7 @@ public class Sudoku implements Playable {
         this.changes = new ArrayList<>();// inicializacion historial
 
         for(int i = 0;i<sudokuString.length();i++){
-            //cad 9 char es una fila. Miro cuantos grupos de 9 caben completos en la fila y el resto es la columna
+            //cada 9 char es una fila. Miro cuantos grupos de 9 caben completos en la fila y el resto es la columna
             int row= i/9;
             int col=i%9;
 
@@ -123,21 +130,30 @@ public class Sudoku implements Playable {
     }
 
     @Override
-    public Boolean isFinished() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public Boolean didPlayerWin() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public void surrender() {
-        // TODO Auto-generated method stub
+    public Boolean isFinished() {// TODO Auto-generated method stub
+        if (this.isFinish) return true;
+        for(int i=0; i<9;i++){
+            for(int j=0;j<9;i++){
+                if(0== this.matrix[i][j]){
+                    return false;
+                }
+            }
+        }
         
+
+        return true;
+    }
+
+    @Override
+    public Boolean didPlayerWin() {// TODO Auto-generated method stub
+        return this.isFinish && !this.surrendered;
+    }
+
+    @Override
+    public void surrender() {// TODO Auto-generated method stub
+        this.isFinish=true;
+        this.surrendered=true;
+   
     }
 
     @Override
@@ -164,34 +180,102 @@ public class Sudoku implements Playable {
             }
         
         
+    }
+
+    @Override
+    public void undo() {// TODO Auto-generated method stub
+        if(this.changes.isEmpty()) return;
+        SudokuChange lastChange = this.changes.removeLast();
+        Integer row = lastChange.before().row();
+        Integer col = lastChange.before().col();
+        Integer val = lastChange.before().value();
+        this.matrix[row][col]= val;
 
         
     }
 
-    @Override
-    public void undo() {
-        // TODO Auto-generated method stub
+    private Boolean checkRows(){ // TODO Return true if there is no error related to rows;
+        //para revisar que en ninguna fila se repita algun numero. Empieza a revisar en horizontal
+
+        for(int num=1; num<=9;num++){
+
+        for(int i=0; i<9; i++){ //fila
+            int contador=0;
+           
+            for(int j =0; j<9; j++){ //col
+                if (num == this.matrix[i][j]) contador ++;
+                
+                if (contador >1){
+                    return false;
+                }
+            
+            }
+        }
+        }
         
+        return true;
     }
 
-    private Boolean checkRows(){
-        // TODO Return true if there is no error related to rows;
-        return false;
+    private Boolean checkCols(){// TODO Return true if there is no error related to columns;
+        //para revisar que en ninguna columna se repita algun numero. Empieza a revisar en vertical 
+
+        for(int num=1; num<=9;num++){
+
+        for(int j=0; j<9; j++){ //col
+            int contador=0;
+           
+            for(int i =0; i<9; i++){ //fila
+                if (num == this.matrix[i][j]) contador ++;
+                
+                if (contador >1){
+                    return false;
+                }
+            
+            }
+        }
+        }
+        
+        return true;
     }
 
-    private Boolean checkCols(){
-        // TODO Return true if there is no error related to columns;
-        return false;
-    }
 
-    private Boolean checkSquares(){
-        // TODO Return true if there is no error related to squares;
-        return false;
-    }
+    private Boolean checkSquares(){// TODO Return true if there is no error related to squares;
+         for(int num=1; num<=9;num++){
+            for (int cuadrado = 0; cuadrado<9; cuadrado++){
+                int iMin = 3 * (cuadrado/3);
+                int jMin = 3 * (cuadrado%3);
+                int contador=0; //para que se reinicie con cada cuadrado
+                for(int i = iMin; i<iMin +3; i++){
+                    for (int j =jMin; j < jMin+3; j++){
+                        if(num == this.matrix[i][j]) contador++;
+                        if (contador > 1){
+                            return false;
+                        }                    
+                    }
+                }
+
+
+            }
+        
+         }
+        return true;
+         }
+         
 
     @Override
-    public void nextRound(String userInput) throws InvalidUserInputException, InvalidMovementException {
-        // TODO Auto-generated method stub
+    public void nextRound(String userInput) throws InvalidUserInputException, InvalidMovementException {// TODO Auto-generated method stub
+        SudokuInput input = inputFromString(userInput);
+        int currentValue = this.matrix[input.row][input.col()];
+        SudokuInput currentInput = new SudokuInput(input.row(),input.col(),currentValue);
+        SudokuChange change = new SudokuChange(currentInput,input);
+        this.changes.add(change);
+        this.matrix[input.row()][input.col()] = input.value();
+        if(!this.checkRows()|| !this.checkCols()|| !this.checkSquares()){
+            this.undo();
+            throw  new InvalidMovementException(userInput,"Asegurate de no repetir numeros");
+
+
+        }
         
     }
 
