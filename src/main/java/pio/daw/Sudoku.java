@@ -21,9 +21,9 @@ public class Sudoku implements Playable {
         //divido string en 3: compruebo que el primero es letra y los otros dos numeros
            
             //asigno un indice a cada parte
-            char rowValue = Character.toUpperCase(input.charAt(0));//por si lo pone en minusculas que no de problema
-            char colValue = input.charAt(1);
-            char n = input.charAt(2);
+            char rowChr = Character.toUpperCase(input.charAt(0));//por si lo pone en minusculas que no de problema
+            char colChr = input.charAt(1);
+            char valChr = input.charAt(2);
 
             
          
@@ -32,31 +32,28 @@ public class Sudoku implements Playable {
             throw new Playable.InvalidUserInputException(input, "El formato debe tener 3 valores. Ejemplo: B37");
             }
             
-            if (!Character.isLetter(rowValue)) {
+            if (!Character.isLetter(rowChr)) {
             throw new Playable.InvalidUserInputException(input, "El primer valor debe ser una letra (A-I).");
             }
 
-            if (!Character.isDigit(colValue) || !Character.isDigit(n)) {
+            if (!Character.isDigit(colChr) || !Character.isDigit(valChr)) {
             throw new Playable.InvalidUserInputException(input, "El segundo y tercer valor deben ser numeros(1-9)");
             }
 
 
-            int row = rowMap.get(rowValue); //coge la letra y lo convierte en el indice que le hemos puesto en el rowmap
-            int col = Character.getNumericValue(colValue) - 1;
-            int value = Character.getNumericValue(n);
+            int row = rowMap.get(rowChr); //coge la letra y lo convierte en el indice que le hemos puesto en el rowmap
+            int col = Character.getNumericValue(colChr - 1);
+            int value = Character.getNumericValue(valChr);
 
            
-          this(row: null, col: null, value: null);
+       
 
-          return new SudokuInput(input);
+          return new SudokuInput(null,null,null);
    
 
         }
 
         
-        
-    
-
 
      private final static Map<Character,Integer> rowMap = Map.of( //para pasar la letra de la fila a un indice 0-8. NO CONVIERTE LETRAS EN NUMEROS
         'A',0,
@@ -82,8 +79,6 @@ public class Sudoku implements Playable {
         }
 
         
-                
-  
 
         @Override
         public final String toString() {
@@ -98,10 +93,10 @@ public class Sudoku implements Playable {
     //constuctor 1 vacio
      Sudoku(){ //TODO Create a Sudoku with the matrix fill with 0 and an empty list of changes;
         
-       this.tablero = new Integer[9][9]; //inicializacion
+       this.matrix = new Integer[9][9]; //inicializacion
        this.changes = new ArrayList<>();
 
-        for(Integer []row : this.tablero){//rellena el array de arrays con ceros
+        for(Integer []row : this.matrix){//rellena el array de arrays con ceros
             Arrays.fill(row,0);
        }
        /* otra opcion: for(int row=0; row<9;row++){
@@ -131,8 +126,8 @@ public class Sudoku implements Playable {
     @Override
     public Boolean isFinished() {// TODO Auto-generated method stub
         if (this.isFinish) return true;
-        for(int i=0; i<9;i++){
-            for(int j=0;j<9;i++){
+        for(Integer i=0; i<9;i++){
+            for(Integer j=0;j<9;i++){
                 if(0== this.matrix[i][j]){
                     return false;
                 }
@@ -158,20 +153,24 @@ public class Sudoku implements Playable {
     @Override
     public void renderToConsole() {  // TODO Auto-generated method stub: Print to console the game updated since last input
 
+        System.out.println("  1 2 3 4 5 6 7 8 9");
+        System.out.println(" -------------------");
+        for(Integer row = 0; row<)
+        
         String[] filas = {"A","B","C","D","E","F","G","H","I"}; //para poner la letra de cada fila al lado de cada una
 
         //filas: poner la letra de cada fila para que el usuario sepa cual es
-         for (int row=0;row <9; row++){
+         for (Integer row=0;row <9; row++){
             System.out.println(filas[row]+ " ");
          
         }
         //columnas: si vale 0 pongo un . para indicar hueco
-         for (int col =0; col<9;col++){
-            if(tablero[row][col]==0){
+         for (Integer col =0; col<9;col++){
+            if(matrix[row][col]==0){
                 System.out.println(". ");
             }
             else{
-                System.out.println(tablero[row][col + " "]);
+                System.out.println(matrix[row][col + " "]);
             }
         
         //separar visualmente los 3x3 con --- |?
@@ -196,12 +195,12 @@ public class Sudoku implements Playable {
     private Boolean checkRows(){ // TODO Return true if there is no error related to rows;
         //para revisar que en ninguna fila se repita algun numero. Empieza a revisar en horizontal
 
-        for(int num=1; num<=9;num++){
+        for(Integer num=1; num<=9;num++){
 
-        for(int i=0; i<9; i++){ //fila
-            int contador=0;
+        for(Integer i=0; i<9; i++){ //fila
+            Integer contador=0;
            
-            for(int j =0; j<9; j++){ //col
+            for(Integer j =0; j<9; j++){ //col
                 if (num == this.matrix[i][j]) contador ++;
                 
                 if (contador >1){
@@ -218,12 +217,12 @@ public class Sudoku implements Playable {
     private Boolean checkCols(){// TODO Return true if there is no error related to columns;
         //para revisar que en ninguna columna se repita algun numero. Empieza a revisar en vertical 
 
-        for(int num=1; num<=9;num++){
+        for(Integer num=1; num<=9;num++){
 
-        for(int j=0; j<9; j++){ //col
-            int contador=0;
+        for(Integer j=0; j<9; j++){ //col
+            Integer contador=0;
            
-            for(int i =0; i<9; i++){ //fila
+            for(Integer i =0; i<9; i++){ //fila
                 if (num == this.matrix[i][j]) contador ++;
                 
                 if (contador >1){
@@ -239,13 +238,13 @@ public class Sudoku implements Playable {
 
 
     private Boolean checkSquares(){// TODO Return true if there is no error related to squares;
-         for(int num=1; num<=9;num++){
-            for (int cuadrado = 0; cuadrado<9; cuadrado++){
-                int iMin = 3 * (cuadrado/3);
-                int jMin = 3 * (cuadrado%3);
-                int contador=0; //para que se reinicie con cada cuadrado
-                for(int i = iMin; i<iMin +3; i++){
-                    for (int j =jMin; j < jMin+3; j++){
+         for(Integer num=1; num<=9;num++){
+            for (Integer cuadrado = 0; cuadrado<9; cuadrado++){
+                Integer iMin = 3 * (cuadrado/3);
+                Integer jMin = 3 * (cuadrado%3);
+                Integer contador=0; //para que se reinicie con cada cuadrado
+                for(Integer i = iMin; i<iMin +3; i++){
+                    for (Integer j =jMin; j < jMin+3; j++){
                         if(num == this.matrix[i][j]) contador++;
                         if (contador > 1){
                             return false;
@@ -285,17 +284,16 @@ public class Sudoku implements Playable {
 
     @Override
     public String toString() {// TODO Convert the sudoku matrix in a one line string of len 9x9;
-        this();
-        for (Integer i = 0 <9; i++){
-            for(Integer j = 0; j<9; j++){
-                Integer intPos = i * 9 +j; //para coger la posicion del String
-                String val = Integer.parseInt(sudokuString.substring(intPos,intPos+1));//substring: desde x hasta y, sin incluir y
-                this.matrix [i][j]=val;
+        StringBuilder sb= new StringBuilder();
+        for(Integer i = 0; i<9; i++){
+            for (Integer j = 0; j <9; j++){
+                sb.append(this.matrix[i][j]);
             }
         }
-           return "";
+        
+           return sb.toString();
             
-        }
+    }
         
      
 }
